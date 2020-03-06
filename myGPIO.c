@@ -20,7 +20,7 @@ void initGPIO()
     // Launchpad S2
     GPIO_setAsInputPin(GPIO_PORT_P1 , GPIO_PIN4);
     // Boosterpack S1
-    GPIO_setAsInputPin(GPIO_PORT_P5 , GPIO_PIN1);
+    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P5 , GPIO_PIN1);
     // Boosterpack S2
     GPIO_setAsInputPin(GPIO_PORT_P3 , GPIO_PIN5);
     // Launchpad LED1
@@ -42,6 +42,9 @@ void initGPIO()
     turnOff_LaunchpadLED2Red();
     turnOff_LaunchpadLED2Blue();
     turnOff_LaunchpadLED2Green();
+    turnOff_BoosterpackLEDRed();
+    turnOff_BoosterpackLEDGreen();
+    turnOff_BoosterpackLEDBlue();
 
 
 }

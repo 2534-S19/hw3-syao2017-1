@@ -5,11 +5,17 @@
 
 int main(void)
 {
+
+
+
+
     // Count variables to control the LEDs.
     unsigned int count0 = 0;
     unsigned int count1 = 0;
+    bool check = false;
 
-    unsigned int history = 0;
+
+    unsigned char history = 0x0000;
 
     // TODO: Declare the variables that main uses to interact with your state machine.
 
@@ -49,18 +55,22 @@ int main(void)
         // YOU MUST WRITE timer1expired IN myTimer.c
         if (timer1Expired())
         {
+          history = history << 1;
           history |= checkStatus_BoosterpackS1();
-
-
         }
 
         // TODO: Call the button state machine function to check for a completed, debounced button press.
         // YOU MUST WRITE THIS FUNCTION BELOW.
-        //fsmBoosterpackButtonS1(check);
+        check = fsmBoosterpackButtonS1(history);
 
 
         // TODO: If a completed, debounced button press has occurred, increment count1.
-
+        if(check == true)
+        {
+            if(count1 >= 7)
+                count1 = 0;
+            count1++;
+        }
 
 
     }
@@ -133,6 +143,7 @@ void changeLaunchpadLED2(unsigned int count)
 // This is essentially a copy of the previous function, using a different LED
 void changeBoosterpackLED(unsigned int count)
 {
+
     if (count == 0)//clear
     {
         turnOff_BoosterpackLEDRed();
@@ -141,25 +152,31 @@ void changeBoosterpackLED(unsigned int count)
     }
     else if (count == 1)//red
     {
+        turnOff_BoosterpackLEDGreen();
         turnOn_BoosterpackLEDRed();
+        turnOff_BoosterpackLEDBlue();
     }
     else if (count == 2)//green
     {
+        turnOff_BoosterpackLEDBlue();
         turnOff_BoosterpackLEDRed();
         turnOn_BoosterpackLEDGreen();
     }
     else if (count == 3)//yellow
     {
+        turnOff_BoosterpackLEDBlue();
         turnOn_BoosterpackLEDRed();
         turnOn_BoosterpackLEDGreen();
     }
     else if (count == 4)//blue
     {
+        turnOff_BoosterpackLEDGreen();
         turnOff_BoosterpackLEDRed();
         turnOn_BoosterpackLEDBlue();
     }
     else if (count == 5)//magenta
     {
+        turnOff_BoosterpackLEDGreen();
         turnOn_BoosterpackLEDRed();
         turnOn_BoosterpackLEDBlue();
     }
@@ -179,11 +196,39 @@ void changeBoosterpackLED(unsigned int count)
 
 // TODO: Create a button state machine.
 // The button state machine should return true or false to indicate a completed, debounced button press.
-bool fsmBoosterpackButtonS1(unsigned int buttonhistory)
-{
-    bool pressed = false;
-    //if()
 
+bool fsmBoosterpackButtonS1(unsigned char buttonhistory)
+{
+    typedef enum {release, RtoP, pushed, PtoR} position;
+    static position pos = release;
+
+    bool pressed = false;
+
+    switch (pos){
+
+    case release:
+        if(buttonhistory &= BIT0)
+            pos = RtoP;
+        break;
+
+    case RtoP:
+        if(buttonhistory &= BIT0)
+            pos = pushed;
+        else
+            pos = release;
+        break;
+
+    case pushed:
+        if(buttonhistory &= BIT0)
+            pos = PtoR;
+        break;
+
+    case PtoR:
+        pressed = true;
+        pos = release;
+        break;
+
+    }
 
     return pressed;
 }
